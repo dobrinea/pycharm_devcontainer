@@ -1,0 +1,61 @@
+# Configure jinja2 defaults to make syntax highlighters lives easier
+_templates_suffix: .jinja
+
+# Other Copier configurations
+_min_copier_version: "9"
+_exclude:
+  - _macros
+  - _traefik*_labels.yml
+  - /.git
+  - /.github
+  - /.gitmodules
+  - /.vscode/launch.json
+  - /.vscode/settings.json
+  - /**.pyc
+  - /**.pyo
+  - /CONTRIBUTING.md
+  - /copier.yml
+  - /COPYING
+  - /docs
+  - /migrations.py
+  - /poetry.lock
+  - /pyproject.toml
+  - /scripts
+  - /tasks_downstream.py
+  - /tests
+  - /vendor
+  - /Dev.Dockerfile
+
+# Questions for the user
+odoo_version:
+  help: On which odoo version is it based?
+  type: float
+  default: 17.0
+  choices:
+    - 16.0
+    - 17.0
+
+odoo_initial_lang:
+  default: en_US
+  type: str
+  help: >-
+    If you want to initialize Odoo automatically in a specific language, write it here.
+    The format must be ll_CC where ll is the language code and CC is the country code.
+
+    Examples: en_US, es_ES, es_VE...
+
+project_author:
+  type: str
+  help: >-
+    Tell me who you are.
+
+    If private modules do not include this author, pylint will warn you.
+  default: Dobrinea
+
+project_name:
+  type: str
+  help: >-
+    What's your project name?
+
+    Do not use dots or spaces in the name; just "A-Za-z0-9-_" please.
+  default: myproject-oneerp

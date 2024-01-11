@@ -1,1 +1,76 @@
-README
+# ERPDev Copier Template
+
+This project lets you maintain [ONEERP][] deployments based on [ERPDev][] using
+[Copier][].
+
+<details>
+<!-- prettier-ignore-start -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<summary>Table of contents</summary>
+
+- [Installation and Usage](#installation-and-usage)
+  - [Install the dependencies](#install-the-dependencies)
+  - [Use the template to generate your subproject](#use-the-template-to-generate-your-subproject)
+- [Credits](#credits)
+- [Footnotes](#footnotes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- prettier-ignore-end -->
+</details>
+
+# Installation and Usage
+
+## Install the dependencies
+
+This project itself is just the template, but you need to install these tools to use it:
+
+- Linux<sup>1</sup>
+- [copier][]
+- [Docker](https://docs.docker.com/)
+  - [Compose V2 plugin](https://docs.docker.com/compose/)
+- [git](https://git-scm.com/) 2.24 or newer
+- [invoke](https://www.pyinvoke.org/) installed in Python 3.8.1+ (and the binary must be
+  called `invoke` — beware if your distro installs it as `invoke3` or similar).
+- [pre-commit](https://pre-commit.com/)
+- [python](https://www.python.org/) 3.8.1+
+- [venv](https://docs.python.org/3/library/venv.html)
+
+Install non-python apps with your distro's recommended package manager. The recommended
+way to install Python CLI apps is [pipx](https://pipxproject.github.io/pipx/):
+
+```bash
+python3 -m pip install --user pipx
+pipx install copier
+pipx install invoke
+pipx install pre-commit
+pipx ensurepath
+```
+
+## Use the template to generate your subproject
+
+Once you installed everything, you can now use Copier to copy this template:
+
+```bash
+copier copy gh:Tecnativa/doodba-copier-template ~/path/to/your/subproject
+```
+
+Copier will ask you a lot of questions. Answer them to properly generate the template.
+
+Notes:
+
+- The backup service will not be deployed when using postgresql 9.6.
+
+# Credits
+
+This project is maintained by:
+
+Dobrinea
+
+# Footnotes
+
+<sup>1</sup> Any modern distro should work. Ubuntu and Fedora are officially supported.
+Other systems are not tested. If you're on Windows, you'll probably need WSL or a Linux
+VM to work with ERPDev without problems. If you use other systems and find a way to make
+these tools work, please consider [opening a PR](#contributing) to add some docs that
+might help others with your situation.
