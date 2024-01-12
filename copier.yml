@@ -37,14 +37,94 @@ _tasks:
   - invoke after-update
   - invoke develop
 
+#_migrations:
+#  - version: v1.0.0
+#    after:
+#      - - invoke
+#        - --search-root={{ _copier_conf.src_path }}
+#        - --collection=migrations
+#        - from-doodba-scaffolding-to-copier
+#  - version: v1.5.2
+#    after:
+#      - - invoke
+#        - --search-root={{ _copier_conf.src_path }}
+#        - --collection=migrations
+#        - remove-odoo-auto-folder
+#  - version: v1.5.3
+#    after:
+#      - - invoke
+#        - --search-root={{ _copier_conf.src_path }}
+#        - --collection=migrations
+#        - remove-odoo-auto-folder
+#  - version: v2.0.0a0
+#    before:
+#      - - invoke
+#        - --search-root={{ _copier_conf.src_path }}
+#        - --collection=migrations
+#        - update-domains-structure
+#        - "{{ _copier_conf.dst_path }}"
+#        - "{{ _copier_conf.answers_file }}"
+#  - version: v2.1.1a0
+#    after:
+#      - - invoke
+#        - --search-root={{ _copier_conf.src_path }}
+#        - --collection=migrations
+#        - remove-vscode-launch-and-tasks
+#        - "{{ _copier_conf.dst_path }}"
+#  - version: v2.7.0a4
+#    after:
+#      - - invoke
+#        - --search-root={{ _copier_conf.src_path }}
+#        - --collection=migrations
+#        - remove-vscode-settings
+#        - "{{ _copier_conf.dst_path }}"
+#  - version: v3.0.1
+#    before: &update_no_license
+#      - - invoke
+#        - --search-root={{ _copier_conf.src_path }}
+#        - --collection=migrations
+#        - update-no-license
+#        - "{{ _copier_conf.dst_path }}"
+#        - "{{ _copier_conf.answers_file }}"
+#    after: *update_no_license
+#  - version: v4.0.0a0
+#    after:
+#      - - invoke
+#        - --search-root={{ _copier_conf.src_path }}
+#        - --collection=migrations
+#        - db-filter-prefix-default
+#        - "{{ _copier_conf.dst_path }}"
+#        - "{{ _copier_conf.answers_file }}"
+
 # Questions for the user
 odoo_version:
   help: On which odoo version is it based?
   type: float
   default: 17.0
   choices:
+    - 7.0
+    - 8.0
+    - 9.0
+    - 10.0
+    - 11.0
+    - 12.0
+    - 13.0
+    - 14.0
+    - 15.0
     - 16.0
     - 17.0
+
+#odoo_proxy:
+#  default: traefik
+#  choices:
+#    No proxy (dangerous for production): ""
+#    Traefik: traefik
+#    Other proxy (it's up to you!): other
+#  help: >-
+#    ⚠️ Using a misconfigured proxy for production can create a security hole. Using none
+#    can create performance problems.
+#
+#    Which proxy will you use to deploy odoo?
 
 odoo_initial_lang:
   default: en_US
@@ -55,13 +135,42 @@ odoo_initial_lang:
 
     Examples: en_US, es_ES, es_VE...
 
+odoo_admin_password:
+  secret: true
+  default: example-admin-password
+  type: str
+  help: >-
+    💡 To auto-generate strong passwords, see https://ddg.gg/?q=password+64+strong
+
+    ⚠️ This password is critical for security, especially if you set odoo_listdb to
+    true, so keep it safe.
+
+    What will be your odoo admin password?
+
+odoo_listdb:
+  default: false
+  type: bool
+  help: >-
+    Do you want to list databases publicly?
+
+odoo_oci_image:
+  type: str
+  help: >-
+    If you are using an OCI/Docker image registry (such as the Docker Hub, Quay or
+    Gitlab registry) to publish the Odoo images that will be built with this Doodba
+    project, specify here the path to the odoo image built with it. Leave it empty if
+    you are not using a registry.
+
+    Example: docker.io/myteam/example-odoo
+  default: ""
+
 project_author:
   type: str
   help: >-
     Tell me who you are.
 
     If private modules do not include this author, pylint will warn you.
-  default: Dobrinea
+  default: Tecnativa
 
 project_name:
   type: str
@@ -69,4 +178,433 @@ project_name:
     What's your project name?
 
     Do not use dots or spaces in the name; just "A-Za-z0-9-_" please.
-  default: myproject-oneerp
+  default: myproject-odoo
+
+project_license:
+  help: >-
+    It's important to use a good license for your project.
+
+    In https://choosealicense.com/ you can read details about most common FOSS ones. In
+    https://www.odoo.com/documentation/user/14.0/legal/licenses/licenses.html you can
+    find other propietary licenses we support in this scaffolding. Make a wise choice!
+
+    So, what's your project's license?
+  default: BSL-1.0
+  choices:
+    No license: no_license
+    Apache License 2.0: Apache-2.0
+    Boost Software License 1.0: BSL-1.0
+    GNU Affero General Public License (AGPL) 3.0 or later: AGPL-3.0-or-later
+    GNU Library or "Lesser" General Public License (LGPL) 3.0 or later: LGPL-3.0-or-later
+    MIT license: MIT
+    Odoo Enterprise Edition License v1.0: OEEL-1.0
+    Odoo Proprietary License v1.0: OPL-1.0
+
+gitlab_url:
+  type: str
+  help: >-
+    If you host this project in Gitlab, then please enter here the project URL.
+
+    It must have no trailing slash.
+
+    💡 If you don't use Gitlab, leave this empty and ignore all other Gitlab questions.
+
+    Example: `https://gitlab.com/Tecnativa/your-doodba-project`.
+  default: ""
+
+domains_prod:
+  type: yaml
+  multiline: true
+  default: {}
+  placeholder: |
+    # Main domains, with TLS and cert resolved with "letsencrypt" resolver
+    - hosts:
+        - www.main.com
+        - shop.main.com
+
+    # Alternate domains that redirect to main ones
+    - hosts:
+        - main.com
+        - old.main.com
+      redirect_to: www.main.com
+    - hosts:
+        - www.shop.main.com
+        - old.shop.main.com
+      redirect_to: shop.main.com
+      redirect_permanent: True
+
+    # VPN-only domain, with self-signed certificate
+    - hosts:
+        - vpn.main.com
+      cert_resolver: true
+  help: |
+    Configure the production domains for this project.
+
+    The format is a list with these keys:
+
+    - hosts: The domain names. List of strings.
+    - path_prefixes: The path prefixes (if any) that will match this routing rule.
+      List of strings. Default: [].
+    - redirect_to: Apply a redirection to this other domain. By default, it will
+      be a 302 redirection, but it can be turned into a 301 redirection by enabling
+      the `redirect_permanent` option.
+      String. Default: null.
+    - redirect_permanent: Return 301 instead of 302 in a Traefik redirection, making it permanent.
+      Boolean. Default: False.
+    - cert_resolver: Traefik cert resolver name. String/Boolean. Default: "letsencrypt".
+      Set it to `true` to use a self-signed certificate. Set it to `false` to
+      disable TLS in those domains. If not `false`, it will force using HTTPS.
+    - entrypoints: List of entrypoint names to use when creating this rule. Default: [].
+      Leave empty to apply this rule on all available entrypoints. Those are defined
+      in your Traefik deployment.
+
+    See https://www.tecnativa.com/r/Anu for an example.
+
+    ⚠ Remember that you have to write one-line YAML, at least until Copier
+    supports multiline input
+
+    ⚠ Some advanced features are only available if you deploy with Traefik 2.
+
+    💡 The 1st host from the 1st domain that has no `path_prefixes` will be considered
+    the main one. In the example above, it'd be `www.main.com`.
+
+domains_test:
+  type: yaml
+  multiline: true
+  default: {}
+  placeholder: |
+    # Main domains, with TLS and cert resolved with "letsencrypt" resolver
+    - hosts:
+        - demo1.main.com
+        - demo2.main.com
+
+    # Alternate domains that redirect to main ones
+    - hosts:
+        - www.demo1.main.com
+        - old.demo1.main.com
+      redirect_to: demo1.main.com
+    - hosts:
+        - www.demo2.main.com
+        - old.demo2.main.com
+      redirect_to: demo2.main.com
+      redirect_permanent: True
+
+    # VPN-only domain, with self-signed certificate
+    - hosts:
+        - vpn.demo.main.com
+      cert_resolver: true
+  help: |
+    Configure the test domains for this project.
+
+    The format is the same as for `prod_domains`; a list with these keys:
+
+    - hosts: The domain names. List of strings.
+    - path_prefixes: The path prefixes (if any) that will match this routing rule.
+      List of strings. Default: [].
+    - redirect_to: Apply a redirection to this other domain. By default, it will be a
+      302 redirection, but it can be turned into a 301 redirection by enabling the
+      `redirect_permanent` option.
+      String. Default: null.
+    - redirect_permanent: Return 301 instead of 302 in a Traefik redirection, making it permanent.
+      Boolean. Default: False.
+    - cert_resolver: Traefik cert resolver name. String/Boolean. Default: "letsencrypt".
+      Set it to `true` to use a self-signed certificate. Set it to `false` to
+      disable TLS in those domains. If not `false`, it will force using HTTPS.
+    - entrypoints: List of entrypoint names to use when creating this rule. Default: [].
+      Leave empty to apply this rule on all available entrypoints. Those are defined
+      in your Traefik deployment.
+
+    See https://www.tecnativa.com/r/Y0v for an example.
+
+    ⚠ Remember that you have to write one-line YAML, at least until Copier
+    supports multiline input
+
+    ⚠ Some advanced features are only available if you deploy with Traefik 2.
+
+    💡 The 1st host from the 1st domain that has no `path_prefixes` will be considered
+    the main one. In the example above, it'd be `demo1.main.com`.
+
+paths_without_crawlers:
+  multiline: true
+  default:
+    - /web
+    - /website/info
+  help: >-
+    Tell me the list of paths which where you want to forbid crawlers.
+
+    Imagine you do not want your `/shop` and `/shop/**` pages to be indexed. Then put
+    here `[/shop]`.
+
+    ⚠️ It must be a list. And this is only supported if you deploy with Traefik.
+
+    💡 We will convert this to `Path` rules. Check valid syntax in
+    https://docs.traefik.io/routing/routers/#rule
+
+cidr_whitelist:
+  multiline: true
+  default: null
+  help: >-
+    If you need to whitelist certain CIDR to allow only them to access your Odoo
+    instance, set that here please.
+
+    ⚠️ It must be a list. And this is only supported if you deploy with Traefik 2+.
+
+postgres_version:
+  default: "15"
+  help: >-
+    Which PostgreSQL version do you want to deploy? (Recommended: for new instances
+    always use the latest version. Version 9.6 has no backup support.)
+  choices:
+    I will use an external PostgreSQL server: ""
+    "9.6": "9.6"
+    "10": "10"
+    "11": "11"
+    "12": "12"
+    "13": "13"
+    "14": "14"
+    "15": "15"
+  validator: >-
+    {% if postgres_version|int > 0 %} {% if (odoo_version >= 16.0 and
+    postgres_version|int < 12) or (odoo_version >= 14.0 and postgres_version|int < 10)
+    %}  The postgres version is too low for the selected Odoo version. {% elif
+    odoo_version <= 12.0 and postgres_version|int > 13 %}  The postgres version is too
+    high for the selected Odoo version. {% endif %} {% endif %}
+
+postgres_username:
+  type: str
+  default: odoo
+  help: >-
+    Which user name will be used to connect to the postgres server?
+
+postgres_dbname:
+  type: str
+  default: prod
+  help: >-
+    💡 If database names differ among environments, operations like restoring a database
+    from an alien environment will be harder to maintain, but can provide additional
+    security. It's up to you. We default to "prod" for historical reasons.
+
+    What is going to be the main database name?
+
+postgres_password:
+  secret: true
+  default: example-db-password
+  type: str
+  help: >-
+    What will be your postgres user password?
+
+postgres_exposed:
+  default: false
+  type: bool
+  help: >-
+    Do you want to expose database service?
+
+postgres_exposed_port:
+  default: 5432
+  type: int
+  when: &db_exposed "{{ postgres_exposed and true }}"
+  help: >-
+    Indicate the port to connect to the database.
+
+postgres_cidr_whitelist:
+  multiline: true
+  default: null
+  when: *db_exposed
+  help: >-
+    If you need to whitelist certain CIDR to allow only them to access your Postgres
+    instance, set that here please.
+
+    ⚠️ It must be a list. And this is only supported if you deploy with Traefik 2+.
+
+odoo_dbfilter:
+  default: "^{{ postgres_dbname }}"
+  type: str
+  help: >-
+    Set your Odoo db filter. It must be a regexp that matches the domain name being
+    visited. It is useful if you use Odoo in SaaS mode. Only applied to production
+    environment.
+
+smtp_default_from:
+  type: str
+  help: >-
+    Now, let's start configuring outgoing mail.
+
+    In case an email coming out from odoo doesn't have a valid `From:` header address,
+    which address should be the default one that sends the email?
+  default: ""
+
+smtp_relay_host:
+  type: str
+  help: >-
+    ⚠️ If you leave this answer empty, all next SMTP settings will be ignored.
+
+    If you supply a valid SMTP host, production Odoo will be able to send emails without
+    needing to configure any `ir.mail_server` record, because Doodba will configure it
+    to use a mail relay that will manage a local mail queue before sending it to the
+    real SMTP endpoint (saving your mails from bad network conditions). The same relay
+    will be used to send backup reports.
+
+    So, what is your SMTP host?
+
+    Example: mail.example.com
+  default: ""
+
+smtp_relay_port:
+  type: int
+  default: 587
+  when: &has_smtp "{{ smtp_relay_host and true }}"
+  help: >-
+    Indicate the port to connect in the SMTP server you just defined.
+
+    ⚠️ NEVER use port 465 👉 https://github.com/tomav/docker-mailserver/issues/1428
+
+smtp_relay_user:
+  type: str
+  when: *has_smtp
+  help: >-
+    Indicate the user to connect in the SMTP server you just defined.
+
+    For Odoo to work fine, this user needs to be able to do mail spoofing.
+  default: ""
+
+smtp_relay_password:
+  secret: true
+  type: str
+  default: example-smtp-password
+  when: *has_smtp
+  help: >-
+    What is your SMTP password?
+
+smtp_relay_version:
+  type: str
+  when: *has_smtp
+  default: "10"
+  help: >-
+    Doodba uses docker-mailserver as the local mail relay.
+
+    Which version of the image do you want to use? You can check which ones are
+    available in
+    https://github.com/orgs/docker-mailserver/packages/container/docker-mailserver/versions
+
+smtp_canonical_default:
+  type: str
+  when: *has_smtp
+  help: >-
+    Usually, if you send mails like "user@example.com", the canonical domain would be
+    "example.com".
+
+    This canonical domain should have correct SPF, DKIM and DMARC settings that allow
+    the SMTP host to send mails in its name.
+
+    When Odoo tries to send a mail that does not come from a canonical domain, the
+    domain you indicate here will be used when rewriting the address with SRS
+    (https://en.wikipedia.org/wiki/SRS).
+
+    What's your canonical domain?
+  default: ""
+
+smtp_canonical_domains:
+  when: *has_smtp
+  help: >-
+    Supply a list of other domains authorized to send email from this Odoo instance and
+    SMTP host. They will not be affected by SRS. They also must have valid SPF, DKIM and
+    DMARC settings.
+
+    You do not need to repeat the canonical domain you indicated above.
+
+    Example: [examplemail.com, example.org]
+  default: []
+
+backup_dst:
+  type: str
+  when: "{{ postgres_version|int >= 10 }}"
+  help: >-
+    If you want to use an Amazon S3 bucket, write its URL like
+    `boto3+s3://example_bucket[/example/path]` to make sure it works fine.
+
+    If you want to use any other backend, supply any URL supported by Duplicity (our
+    choice backup engine; read http://duplicity.nongnu.org/vers8/duplicity.1.html#sect7
+    for those URL formats).
+
+    If you don't want backups, leave this empty.
+
+    Where should the backups be stored?
+  default: ""
+
+backup_image_version:
+  type: str
+  when: &backup_present "{{ backup_dst and true }}"
+  default: "latest"
+  help: >-
+    Doodba uses the docker-duplicity image to make the backups.
+
+    Which version of the image do you want to use? You can check which ones are
+    available in
+    https://github.com/orgs/Tecnativa/packages/container/docker-duplicity-postgres/versions
+    and
+    https://github.com/orgs/Tecnativa/packages/container/docker-duplicity-postgres-s3/versions
+
+backup_email_from:
+  type: str
+  when: *backup_present
+  help: >-
+    The backup container will send email reports if the SMTP relay is properly
+    configured.
+
+    What email address should it use to send them?
+  default: ""
+
+backup_email_to:
+  type: str
+  when: *backup_present
+  help: >-
+    Where to send those backup reports?
+  default: ""
+
+backup_deletion:
+  default: false
+  type: bool
+  when: *backup_present
+  help: >-
+    If you're using S3, you probably want to delete outdated backups using bucket
+    lifecycle rules. If you use other storage backend, then you probably want to enable
+    outdated backups deletion using duplicity itself.
+
+    So, do you want to enable duplicity backup deletion via cron?
+
+backup_tz:
+  type: str
+  default: UTC
+  when: *backup_present
+  help: >-
+    Set the timezone used by the backup cron for reports.
+
+    Visit https://www.cyberciti.biz/faq/linux-unix-set-tz-environment-variable/ to know
+    how to obtain a valid value for this variable.
+
+backup_aws_access_key_id:
+  secret: true
+  type: str
+  default: ""
+  when: &backup_aws "{{ 's3:' in backup_dst|string }}"
+  help: >-
+    If you're using AWS S3 to store backups, provide here your access key ID.
+
+backup_aws_secret_access_key:
+  secret: true
+  type: str
+  default: ""
+  when: *backup_aws
+  help: >-
+    If you're using AWS S3 to store backups, provide here your secret access key.
+
+backup_passphrase:
+  secret: true
+  type: str
+  default: example-backup-passphrase
+  when: *backup_present
+  help: >-
+    ⚠️ This passphrase is critical for security, so keep it safe. You will need it to
+    restore backups.
+
+    Which will be your backups passphrase?
