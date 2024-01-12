@@ -26,6 +26,17 @@ _exclude:
   - /vendor
   - /Dev.Dockerfile
 
+_skip_if_exists:
+  - odoo/custom/dependencies/*.txt
+  - odoo/custom/src/addons.yaml
+  - odoo/custom/src/private/*/
+  - odoo/custom/src/repos.yaml
+  - odoo/custom/ssh/*
+
+_tasks:
+  - invoke after-update
+  - invoke develop
+
 # Questions for the user
 odoo_version:
   help: On which odoo version is it based?
